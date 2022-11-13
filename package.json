@@ -1,0 +1,25 @@
+{
+  "name": "flappy-bird-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "gulp sentinel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SaulinDoTrem/flappy-bird-clone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SaulinDoTrem/flappy-bird-clone/issues"
+  },
+  "homepage": "https://github.com/SaulinDoTrem/flappy-bird-clone#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-sass": "^5.1.0",
+    "sass": "^1.56.1"
+  }
+}
