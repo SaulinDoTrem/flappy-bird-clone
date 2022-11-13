@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
         sourceY: 0,
         width: 34,
         height: 24,
-        x: 0,
-        y: 0,
+        x: 10,
+        y: 50,
         gravity: 0.25,
         speed: 0,
         tick() {
@@ -84,14 +84,62 @@ document.addEventListener("DOMContentLoaded", function () {
         },
     };
 
+    const startMessage = {
+        sourceX: 134,
+        sourceY: 0,
+        width: 174,
+        height: 152,
+        x: canvas.width / 2 - 174 / 2,
+        y: 50,
+        draw() {
+            draw(this);
+        },
+    };
+
+    const screens = {};
+
+    screens.start = {
+        draw() {
+            background.draw();
+            ground.draw();
+            flappyBird.draw();
+            startMessage.draw();
+        },
+        click() {
+            switchScreen(screens.game);
+        },
+        tick() {},
+    };
+
+    screens.game = {
+        draw() {
+            background.draw();
+            ground.draw();
+            flappyBird.draw();
+        },
+        tick() {
+            flappyBird.tick();
+        },
+    };
+
+    let activeScreen = {};
+
+    const switchScreen = (newScreen) => {
+        activeScreen = newScreen;
+    };
+
     function gameLoop() {
-        background.draw();
-        ground.draw();
-        flappyBird.draw();
-        flappyBird.tick();
+        activeScreen.draw();
+        activeScreen.tick();
 
         requestAnimationFrame(gameLoop);
     }
 
+    window.addEventListener("click", function () {
+        if (!activeScreen.click) return;
+        activeScreen.click();
+    });
+
+    switchScreen(screens.start);
     gameLoop();
 });
