@@ -42,6 +42,12 @@ document.addEventListener("DOMContentLoaded", function () {
         height: 24,
         x: 0,
         y: 0,
+        gravity: 0.25,
+        speed: 0,
+        tick() {
+            this.speed += this.gravity;
+            this.y += this.speed;
+        },
         draw() {
             draw(this);
         },
@@ -80,8 +86,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function gameLoop() {
         background.draw();
-        flappyBird.draw();
         ground.draw();
+        flappyBird.draw();
+        flappyBird.tick();
+
         requestAnimationFrame(gameLoop);
     }
 
