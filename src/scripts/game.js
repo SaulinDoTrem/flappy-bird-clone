@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     let frames = 0;
 
-    const hitSound = new Audio("../sounds/hit.wav");
+    const hitSound = new Audio("../assets/sounds/hit.wav");
 
     const sprites = new Image();
     sprites.src = "../assets/imgs/sprites.png";
