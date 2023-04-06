@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+    let frames = 0;
+
     const hitSound = new Audio("../sounds/hit.wav");
 
     const sprites = new Image();
@@ -29,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 object.sourceY,
                 object.width,
                 object.height,
-                object.newPositionX,
+                object.x + object.width,
                 object.y,
                 object.width,
                 object.height
@@ -42,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createFlappyBird() {
-        const flappyBird = {
+        return {
             sourceX: 0,
             sourceY: 0,
             width: 34,
@@ -52,11 +54,20 @@ document.addEventListener("DOMContentLoaded", function () {
             gravity: 0.25,
             speed: 0,
             pulo: 4.6,
+            actualFrame: 0,
+            updateActualFrame() {
+                if (frames % 5 === 0) this.actualFrame = frames % 3;
+            },
+            sprites: [
+                { spriteX: 0, spriteY: 0 }, // asa pra cima
+                { spriteX: 0, spriteY: 26 }, // asa no meio
+                { spriteX: 0, spriteY: 52 }, // asa pra baixo
+            ],
             jump() {
                 this.speed = -this.pulo;
             },
             tick() {
-                if (doCollision(this, ground)) {
+                if (doCollision(this, globals.ground)) {
                     hitSound.play();
 
                     setTimeout(() => {
@@ -69,26 +80,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.y += this.speed;
             },
             draw() {
+                this.updateActualFrame();
+                const { spriteX, spriteY } = this.sprites[this.actualFrame];
+                this.sourceX = spriteX;
+                this.sourceY = spriteY;
                 draw(this);
             },
         };
-
-        return flappyBird;
     }
 
-    const ground = {
-        sourceX: 0,
-        sourceY: 609,
-        width: 224,
-        height: 113,
-        x: 0,
-        y: canvas.height - 113,
-        isDouble: true,
-        newPositionX: 224,
-        draw() {
-            draw(this);
-        },
-    };
+    function createGround() {
+        return {
+            sourceX: 0,
+            sourceY: 609,
+            width: 224,
+            height: 113,
+            x: 0,
+            y: canvas.height - 113,
+            isDouble: true,
+            tick() {
+                const movement = this.x - 1;
+
+                this.x = movement % 112;
+            },
+            draw() {
+                draw(this);
+            },
+        };
+    }
 
     const background = {
         sourceX: 390,
@@ -126,23 +145,26 @@ document.addEventListener("DOMContentLoaded", function () {
     screens.start = {
         start() {
             globals.flappyBird = createFlappyBird();
+            globals.ground = createGround();
         },
         draw() {
             background.draw();
-            ground.draw();
+            globals.ground.draw();
             globals.flappyBird.draw();
             startMessage.draw();
         },
         click() {
             switchScreen(screens.game);
         },
-        tick() {},
+        tick() {
+            globals.ground.tick();
+        },
     };
 
     screens.game = {
         draw() {
             background.draw();
-            ground.draw();
+            globals.ground.draw();
             globals.flappyBird.draw();
         },
         click() {
@@ -150,6 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         tick() {
             globals.flappyBird.tick();
+            globals.ground.tick();
         },
     };
 
@@ -164,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
         activeScreen.draw();
         activeScreen.tick();
 
+        frames++;
         requestAnimationFrame(gameLoop);
     }
 
