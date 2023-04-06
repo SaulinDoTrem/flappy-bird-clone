@@ -35,6 +35,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
+    function doCollision(flappyBird, ground) {
+        return flappyBird.y <= ground.y - flappyBird.height;
+    }
+
     const flappyBird = {
         sourceX: 0,
         sourceY: 0,
@@ -44,7 +48,16 @@ document.addEventListener("DOMContentLoaded", function () {
         y: 50,
         gravity: 0.25,
         speed: 0,
+        pulo: 4.6,
+        jump() {
+            console.log("pulo");
+            this.speed = -this.pulo;
+        },
         tick() {
+            if (doCollision(this, ground)) {
+                console.log("piru");
+            }
+
             this.speed += this.gravity;
             this.y += this.speed;
         },
@@ -116,6 +129,9 @@ document.addEventListener("DOMContentLoaded", function () {
             background.draw();
             ground.draw();
             flappyBird.draw();
+        },
+        click() {
+            flappyBird.jump();
         },
         tick() {
             flappyBird.tick();
