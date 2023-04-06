@@ -183,16 +183,75 @@ document.addEventListener("DOMContentLoaded", function () {
     function createScoreboard() {
         return {
             points: 0,
-            draw() {
+            draw(x, y) {
                 context.font = "35px VT323";
                 context.textAlign = "right";
                 context.fillStyle = "white";
-                context.fillText(`Pontuação: ${this.points}`, canvas.width - 10, 35);
+                if (!x && !y) context.fillText(`Score: ${this.points}`, canvas.width - 10, 35);
+                else context.fillText(`${this.points}`, canvas.width - x, y);
             },
             tick() {
                 if (frames % 100 === 0) this.points++;
             },
         };
+    }
+
+    function createMedal() {
+        const medalX = gameOverMessage.x + 26;
+        const medalY = gameOverMessage.y + 87;
+
+        const platinumMedal = {
+            sourceX: 0,
+            sourceY: 78,
+            x: medalX,
+            y: medalY,
+            width: 44,
+            height: 44,
+            draw() {
+                draw(this);
+            },
+        };
+
+        const goldMedal = {
+            sourceX: 0,
+            sourceY: 124,
+            x: medalX,
+            y: medalY,
+            width: 44,
+            height: 44,
+            draw() {
+                draw(this);
+            },
+        };
+
+        const silverMedal = {
+            sourceX: 48,
+            sourceY: 78,
+            x: medalX,
+            y: medalY,
+            width: 44,
+            height: 44,
+            draw() {
+                draw(this);
+            },
+        };
+
+        const bronzeMedal = {
+            sourceX: 48,
+            sourceY: 124,
+            x: medalX,
+            y: medalY,
+            width: 44,
+            height: 44,
+            draw() {
+                draw(this);
+            },
+        };
+
+        if (globals.scoreboard.points <= 20) return bronzeMedal;
+        if (globals.scoreboard.points <= 50) return silverMedal;
+        if (globals.scoreboard.points <= 100) return goldMedal;
+        return platinumMedal;
     }
 
     const background = {
@@ -288,18 +347,21 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     screens.gameOver = {
+        start() {
+            globals.medal = createMedal();
+        },
         draw() {
             background.draw();
             globals.pipes.draw();
             globals.ground.draw();
             globals.flappyBird.draw();
-            globals.scoreboard.draw();
             gameOverMessage.draw();
+            globals.scoreboard.draw(gameOverMessage.x + 22, gameOverMessage.y + 98);
+            globals.medal.draw();
         },
         click() {
             switchScreen(screens.start);
         },
-        tick() {},
     };
 
     let activeScreen = {};
@@ -311,15 +373,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function gameLoop() {
         activeScreen.draw();
-        activeScreen.tick();
+        if (activeScreen.tick) activeScreen.tick();
+
+        window.addEventListener("click", function () {
+            if (activeScreen.click) activeScreen.click();
+        });
 
         frames++;
         requestAnimationFrame(gameLoop);
     }
-
-    window.addEventListener("click", function () {
-        if (activeScreen.click) activeScreen.click();
-    });
 
     switchScreen(screens.start);
     gameLoop();
