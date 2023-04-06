@@ -39,6 +39,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
+    function restartGame() {
+        hitSound.play();
+
+        setTimeout(() => {
+            switchScreen(screens.start);
+        }, 50);
+    }
+
     function doCollision(flappyBird, ground) {
         return flappyBird.y >= ground.y - flappyBird.height;
     }
@@ -68,11 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             tick() {
                 if (doCollision(this, globals.ground)) {
-                    hitSound.play();
-
-                    setTimeout(() => {
-                        switchScreen(screens.start);
-                    }, 50);
+                    restartGame();
                     return;
                 }
 
@@ -105,6 +109,73 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             draw() {
                 draw(this);
+            },
+        };
+    }
+
+    function createPipes() {
+        return {
+            width: 52,
+            height: 400,
+            sprites: {
+                ground: {
+                    sourceX: 0,
+                    sourceY: 169,
+                },
+                sky: {
+                    sourceX: 52,
+                    sourceY: 169,
+                },
+            },
+            space: 100,
+            pipes: [],
+            doCollision(pipe) {
+                const flappyBirdHead = globals.flappyBird.y;
+                const flappyBirdFoot = globals.flappyBird.y + globals.flappyBird.height;
+                const flappyBirdBody = globals.flappyBird.x + globals.flappyBird.width;
+
+                return (
+                    flappyBirdBody >= pipe.x &&
+                    (flappyBirdFoot >= pipe.groundPipe || flappyBirdHead <= pipe.skyPipe)
+                );
+            },
+            draw() {
+                this.pipes.forEach((pipe) => {
+                    const yRandom = pipe.y;
+
+                    this.sourceX = this.sprites.sky.sourceX;
+                    this.sourceY = this.sprites.sky.sourceY;
+                    this.x = pipe.x;
+                    this.y = -yRandom;
+
+                    (pipe.skyPipe = this.y + this.height), draw(this);
+
+                    this.sourceX = this.sprites.ground.sourceX;
+                    this.sourceY = this.sprites.ground.sourceY;
+                    this.x = pipe.x;
+                    this.y = this.height + this.space - yRandom;
+
+                    draw(this);
+
+                    pipe.groundPipe = this.y;
+                });
+            },
+            tick() {
+                if (frames % 100 === 0)
+                    this.pipes.push({
+                        x: canvas.width,
+                        y: Math.round((Math.random() + 1) * 150),
+                    });
+
+                this.pipes.forEach((pipe) => {
+                    pipe.x -= 2;
+
+                    if (this.doCollision(pipe)) {
+                        restartGame();
+                    }
+
+                    if (pipe.x + this.width <= 0) this.pipes.shift();
+                });
             },
         };
     }
@@ -146,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         start() {
             globals.flappyBird = createFlappyBird();
             globals.ground = createGround();
+            globals.pipes = createPipes();
         },
         draw() {
             background.draw();
@@ -164,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
     screens.game = {
         draw() {
             background.draw();
+            globals.pipes.draw();
             globals.ground.draw();
             globals.flappyBird.draw();
         },
@@ -173,6 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tick() {
             globals.flappyBird.tick();
             globals.ground.tick();
+            globals.pipes.tick();
         },
     };
 
