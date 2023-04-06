@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const hitSound = new Audio("../sounds/hit.wav");
+
     const sprites = new Image();
-    sprites.src = "./assets/imgs/sprites.png";
+    sprites.src = "../assets/imgs/sprites.png";
 
     const canvas = document.querySelector("canvas");
     const context = canvas.getContext("2d");
@@ -36,35 +38,43 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     function doCollision(flappyBird, ground) {
-        return flappyBird.y <= ground.y - flappyBird.height;
+        return flappyBird.y >= ground.y - flappyBird.height;
     }
 
-    const flappyBird = {
-        sourceX: 0,
-        sourceY: 0,
-        width: 34,
-        height: 24,
-        x: 10,
-        y: 50,
-        gravity: 0.25,
-        speed: 0,
-        pulo: 4.6,
-        jump() {
-            console.log("pulo");
-            this.speed = -this.pulo;
-        },
-        tick() {
-            if (doCollision(this, ground)) {
-                console.log("piru");
-            }
+    function createFlappyBird() {
+        const flappyBird = {
+            sourceX: 0,
+            sourceY: 0,
+            width: 34,
+            height: 24,
+            x: 10,
+            y: 50,
+            gravity: 0.25,
+            speed: 0,
+            pulo: 4.6,
+            jump() {
+                this.speed = -this.pulo;
+            },
+            tick() {
+                if (doCollision(this, ground)) {
+                    hitSound.play();
 
-            this.speed += this.gravity;
-            this.y += this.speed;
-        },
-        draw() {
-            draw(this);
-        },
-    };
+                    setTimeout(() => {
+                        switchScreen(screens.start);
+                    }, 50);
+                    return;
+                }
+
+                this.speed += this.gravity;
+                this.y += this.speed;
+            },
+            draw() {
+                draw(this);
+            },
+        };
+
+        return flappyBird;
+    }
 
     const ground = {
         sourceX: 0,
@@ -111,11 +121,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const screens = {};
 
+    const globals = {};
+
     screens.start = {
+        start() {
+            globals.flappyBird = createFlappyBird();
+        },
         draw() {
             background.draw();
             ground.draw();
-            flappyBird.draw();
+            globals.flappyBird.draw();
             startMessage.draw();
         },
         click() {
@@ -128,13 +143,13 @@ document.addEventListener("DOMContentLoaded", function () {
         draw() {
             background.draw();
             ground.draw();
-            flappyBird.draw();
+            globals.flappyBird.draw();
         },
         click() {
-            flappyBird.jump();
+            globals.flappyBird.jump();
         },
         tick() {
-            flappyBird.tick();
+            globals.flappyBird.tick();
         },
     };
 
@@ -142,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const switchScreen = (newScreen) => {
         activeScreen = newScreen;
+        if (activeScreen.start) activeScreen.start();
     };
 
     function gameLoop() {
