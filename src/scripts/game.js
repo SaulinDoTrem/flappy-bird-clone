@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hitSound.play();
 
         setTimeout(() => {
-            switchScreen(screens.start);
+            switchScreen(screens.gameOver);
         }, 50);
     }
 
@@ -180,6 +180,21 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    function createScoreboard() {
+        return {
+            points: 0,
+            draw() {
+                context.font = "35px VT323";
+                context.textAlign = "right";
+                context.fillStyle = "white";
+                context.fillText(`Pontuação: ${this.points}`, canvas.width - 10, 35);
+            },
+            tick() {
+                if (frames % 100 === 0) this.points++;
+            },
+        };
+    }
+
     const background = {
         sourceX: 390,
         sourceY: 3,
@@ -202,12 +217,28 @@ document.addEventListener("DOMContentLoaded", function () {
         sourceY: 0,
         width: 174,
         height: 152,
-        x: canvas.width / 2 - 174 / 2,
+        x: xMessage(174),
         y: 50,
         draw() {
             draw(this);
         },
     };
+
+    const gameOverMessage = {
+        sourceX: 134,
+        sourceY: 153,
+        width: 226,
+        height: 200,
+        x: xMessage(226),
+        y: 50,
+        draw() {
+            draw(this);
+        },
+    };
+
+    function xMessage(width) {
+        return canvas.width / 2 - width / 2;
+    }
 
     const screens = {};
 
@@ -226,6 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
             startMessage.draw();
         },
         click() {
+            frames = 0;
             switchScreen(screens.game);
         },
         tick() {
@@ -234,11 +266,15 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     screens.game = {
+        start() {
+            globals.scoreboard = createScoreboard();
+        },
         draw() {
             background.draw();
             globals.pipes.draw();
             globals.ground.draw();
             globals.flappyBird.draw();
+            globals.scoreboard.draw();
         },
         click() {
             globals.flappyBird.jump();
@@ -247,7 +283,23 @@ document.addEventListener("DOMContentLoaded", function () {
             globals.flappyBird.tick();
             globals.ground.tick();
             globals.pipes.tick();
+            globals.scoreboard.tick();
         },
+    };
+
+    screens.gameOver = {
+        draw() {
+            background.draw();
+            globals.pipes.draw();
+            globals.ground.draw();
+            globals.flappyBird.draw();
+            globals.scoreboard.draw();
+            gameOverMessage.draw();
+        },
+        click() {
+            switchScreen(screens.start);
+        },
+        tick() {},
     };
 
     let activeScreen = {};
@@ -266,8 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.addEventListener("click", function () {
-        if (!activeScreen.click) return;
-        activeScreen.click();
+        if (activeScreen.click) activeScreen.click();
     });
 
     switchScreen(screens.start);
