@@ -2,7 +2,7 @@
 
 > Projeto da [série de vídeos no YouTube no canal DevSoutinho](https://www.youtube.com/watch?v=jOAU81jdi-c&list=PLTcmLKdIkOWmeNferJ292VYKBXydGeDej).
 >
-> Quer ver como ta ficando? Acessa (https://saulindotrem.github.io/flappy-bird)
+> Quer ver como ta ficando? Acessa (https://saulindotrem.github.io/flappy-bird-clone)
 
 <p align="center">
   <img alt="Logo do projeto" src="./src/assets/imgs/logo.png" />
