@@ -8,8 +8,6 @@
   <img alt="Logo do projeto" src="./src/assets/imgs/logo.png" />
 </p>
 
-## Contributing/Contribuir
-
 O projeto roda com o comando: npm run dev.
 
 A partir deste comando ele vai criar um servidor local na sua máquina na porta 3000 por padrão, que pode ser alterado no arquivo gulp.
